@@ -13,6 +13,7 @@ type DNSProxy struct {
 	domains       map[string]interface{}
 	servers       map[string]interface{}
 	defaultServer string
+	backupServer  string
 }
 
 func (proxy *DNSProxy) getResponse(requestMsg *dns.Msg) (*dns.Msg, error) {
@@ -58,7 +59,9 @@ func (proxy *DNSProxy) processOtherTypes(dnsServer string, q *dns.Question, requ
 	if len(msg.Answer) > 0 {
 		return &msg.Answer[0], nil
 	}
-	return nil, fmt.Errorf("not found")
+	// execute query to backup server if answer was not found
+	a, e := proxy.processTypeA(proxy.backupServer, q, requestMsg)
+	return a, e
 }
 
 func (proxy *DNSProxy) processTypeA(dnsServer string, q *dns.Question, requestMsg *dns.Msg) (*dns.RR, error) {
@@ -90,7 +93,9 @@ func (proxy *DNSProxy) processTypeA(dnsServer string, q *dns.Question, requestMs
 		}
 		return &answer, nil
 	}
-	return nil, fmt.Errorf("not found")
+	// execute query to backup server if answer was not found
+	a, e := proxy.processTypeA(proxy.backupServer, q, requestMsg)
+	return a, e
 }
 
 func (dnsProxy *DNSProxy) getIPFromConfigs(domain string, configs map[string]interface{}) string {

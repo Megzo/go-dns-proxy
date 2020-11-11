@@ -61,3 +61,14 @@ $ go-dns-proxy -use-outbound -json-config='{
     }
 }
 ```
+
+## Use default server and a backup in case the deafult fails
+
+```json
+{
+    "defaultDns": "192.168.1.1:53",
+    "backupDns": "8.8.8.8:53",
+    "servers": {},
+    "domains": {}
+}
+```

@@ -22,6 +22,7 @@ func main() {
 		domains:       domains.(map[string]interface{}),
 		servers:       servers.(map[string]interface{}),
 		defaultServer: appConfigs.DNSConfigs["defaultDns"].(string),
+		backupServer:  appConfigs.DNSConfigs["backupDns"].(string),
 	}
 
 	logger := NewLogger(appConfigs.LogLevel)
