@@ -60,8 +60,13 @@ func (proxy *DNSProxy) processOtherTypes(dnsServer string, q *dns.Question, requ
 		return &msg.Answer[0], nil
 	}
 	// execute query to backup server if answer was not found
-	a, e := proxy.processTypeA(proxy.backupServer, q, requestMsg)
-	return a, e
+	if dnsServer != proxy.backupServer {
+		a, e := proxy.processOtherTypes(proxy.backupServer, q, requestMsg)
+		return a, e
+	}
+
+	return nil, fmt.Errorf("not found")
+
 }
 
 func (proxy *DNSProxy) processTypeA(dnsServer string, q *dns.Question, requestMsg *dns.Msg) (*dns.RR, error) {
@@ -94,8 +99,12 @@ func (proxy *DNSProxy) processTypeA(dnsServer string, q *dns.Question, requestMs
 		return &answer, nil
 	}
 	// execute query to backup server if answer was not found
-	a, e := proxy.processTypeA(proxy.backupServer, q, requestMsg)
-	return a, e
+	if dnsServer != proxy.backupServer {
+		a, e := proxy.processTypeA(proxy.backupServer, q, requestMsg)
+		return a, e
+	}
+
+	return nil, fmt.Errorf("not found")
 }
 
 func (dnsProxy *DNSProxy) getIPFromConfigs(domain string, configs map[string]interface{}) string {
